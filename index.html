@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>A Great Demo on CodePen</title>
+</head>
+<body>
+<div class="area" id="area"></div>
+<button id="shoot_btn">BOOM</button>
+<button id="wound_btn">Ранил</button>
+<button id="kill_btn">Убил</button>
+
+<script>
+    let area;
+    const AREA_XY = {x:10, y:10};
+    //const ships = {x:[], y:[]};
+    const ships = [];
+    let __ship = [];
+    let shoot_btn
+        ,wound_btn
+        ,kill_btn;
+    let is_random_shoot = true;
+    let random_shoot = {};
+    let ship_shoot = {};
+    const COORDS = [
+        {
+            x: 1,
+            y: 0,
+            dir: -1,
+            dirSign: 1,
+        },
+        {
+            x: -1,
+            y: 0,
+            dir: -1,
+            dirSign: -1,
+        },
+        {
+            x: 0,
+            y: 1,
+            dir: 1,
+            dirSign: 1,
+        },
+        {
+            x: 0,
+            y: -1,
+            dir: 1,
+            dirSign: -1,
+        },
+    ];
+    const resetShip = () => {
+        ship_shoot = {
+            coordX: [],
+            coordY: [],
+            cells: 0,
+            wounded: false,
+            dir: 0,   // направление -1 - горизонтально, 1 - вертикально
+            dirSign: 0,
+            coords: shuffle(COORDS)
+        };
+    }
+    const shuffle = (arr) => {
+        return arr.sort(() => Math.round(Math.random() * 100) - 50);
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        resetShip();
+        area = document.getElementById('area');
+        for(let y = 0; y < AREA_XY.y; y++) {
+            for(let x = 0; x < AREA_XY.x; x++) {
+                const el = document.createElement('div');
+                el.classList.add('cell');
+                el.id = x + ':' + y;
+                area.appendChild(el);
+                if (x && x % (AREA_XY.x-1) == 0) {
+                    const br = document.createElement('br');
+                    area.appendChild(br);
+                }
+            }
+        }
+        let startDrow =  false;
+        document.querySelectorAll('.cell').forEach((el) => {
+
+            el.addEventListener('mousedown', function(e) {
+                startDrow = true;
+                const cell = e.target;
+                cell.classList.add('ship');
+                addShip(cell);
+            });
+            el.addEventListener('mouseover', function(e) {
+                if (startDrow) {
+                    const cell = e.target;
+                    cell.classList.add('ship');
+                    addShip(cell);
+                }
+            });
+            el.addEventListener('mouseup', function() {
+                __ship.forEach(cell => ships.push({[cell]:__ship.length}))
+                startDrow = false;
+            });
+        });
+        const addShip = cell => {
+            const _cell = cell.getAttribute('id').split(':');
+            __ship.push(_cell[0].concat(_cell[1]));
+        }
+
+        wound_btn = document.getElementById('wound_btn');
+        wound_btn.addEventListener('click', function() {
+            shootShip(ship_shoot);
+        });
+
+        kill_btn = document.getElementById('kill_btn');
+        kill_btn.addEventListener('click', function() {
+            markAround();
+            genRandomShoot(random_shoot);
+            resetShip();
+        });
+        const kill = () => {
+            markAround();
+            genRandomShoot(random_shoot);
+            resetShip();
+        }
+
+        shoot_btn = document.getElementById('shoot_btn');
+        shoot_btn.addEventListener('click', function() {
+            if (ship_shoot.wounded) {
+                shootShip(ship_shoot);
+                return;
+            }
+            if (!is_random_shoot && !isCorner(random_shoot)) {
+                let _shoot = genNextShoot();
+                if (_shoot.cell && !_shoot.cell.classList.contains('shooted')) {
+                    shootRandom(_shoot, random_shoot);
+                    return;
+                }
+                _shoot = genNextShoot(false);
+                if (_shoot.cell && !_shoot.cell.classList.contains('shooted')) {
+                    shootRandom(_shoot, random_shoot);
+                    return;
+                }
+                _shoot = genNextShoot(true, false);
+                if (_shoot.cell && !_shoot.cell.classList.contains('shooted')) {
+                    shootRandom(_shoot, random_shoot);
+                    return;
+                }
+                _shoot = genNextShoot(false, false);
+                if (_shoot.cell && !_shoot.cell.classList.contains('shooted')) {
+                    shootRandom(_shoot, random_shoot);
+                    return;
+                }
+                genRandomShoot(random_shoot);
+            } else {
+                genRandomShoot(random_shoot);
+            }
+        });
+        function genNextShoot(plusX = true, plusY = true) {
+            let _xy = {
+                x: plusX ? random_shoot.x + 1 : random_shoot.x - 1,
+                y: plusY ? random_shoot.y + 1 : random_shoot.y - 1
+            };
+            _xy.cell = document.getElementById(_xy.x + ':' + _xy.y)
+            return _xy;
+        }
+        function genRandomShoot(random_shoot) {
+            let _shoot = {
+                    x: Math.floor(Math.random() * AREA_XY.x),
+                    y: Math.floor(Math.random() * AREA_XY.y)
+                };
+            _shoot.cell = document.getElementById(_shoot.x + ':' + _shoot.y);
+
+            if (_shoot.cell && !_shoot.cell.classList.contains('shooted')) {
+                shootRandom(_shoot, random_shoot);
+                is_random_shoot = false;
+            } else {
+                genRandomShoot(random_shoot)
+            }
+        }
+        function shootRandom(_shoot, random_shoot) {
+            if (isShip(_shoot)) {
+                saveShipData(_shoot);
+                _shoot.cell.classList.add('shooted', 'wounded');
+            } else {
+                _shoot.cell.classList.add('shooted');
+                Object.assign(random_shoot, _shoot);
+            }
+        }
+        function isCorner(_shoot) {
+            return ((_shoot.x + 1) == AREA_XY.x && (_shoot.y + 1) == AREA_XY.y
+                || _shoot.x == 0  && _shoot.y == 0
+                || (_shoot.x + 1) == AREA_XY.x  && _shoot.y == 0
+                || _shoot.x == 0  && (_shoot.y + 1) == AREA_XY.y
+            );
+        }
+        function isOutOfBorders(_ship) {
+            return (_ship.x >= AREA_XY.x
+                || _ship.x < 0
+                || _ship.y >= AREA_XY.y
+                || _ship.y < 0
+            );
+        }
+        function checkPrevious(_shoot) {
+            let flag = false;
+            ship_shoot.coordX.forEach((x, i) => {
+                if (_shoot.x == x && _shoot.y == ship_shoot.coordY[i]) {
+                    flag = true;
+                }
+            });
+            return flag;
+        }
+        function isShip(_shoot) {
+            return _shoot.cell.classList.contains('ship');
+        }
+        function shootShip(_shoot, num = 1) {
+            let _ship;
+            for (let coord of ship_shoot.coords) {
+                if (ship_shoot.dir && ship_shoot.dir !== coord.dir) {
+                    continue;
+                }
+                if (ship_shoot.dirSign && ship_shoot.dirSign !== coord.dirSign) {
+                    continue;
+                }
+                _ship = genNextShipShoot(_shoot, coord, num);
+                /*if (checkPrevious(_ship) && ship_shoot.dir) {
+                    _ship = genNextShipShoot(_ship, coord, num);
+                    break;
+                }*/
+                if (isOutOfBorders(_ship)) {
+                    continue;
+                }
+                if (_ship.cell && _ship.cell.classList.contains('shooted')) {
+                    if (_ship.cell.classList.contains('wounded')) {
+                        shootShip(_shoot, ship_shoot.cells);
+                    }
+                    if (ship_shoot.dir) {
+                        ship_shoot.dirSign = -(coord.x ? coord.x : coord.y);
+                    }
+                    continue;
+                } else {
+                    hitTheMark(_ship, coord);
+                    break;
+                }
+            }
+        }
+        function genNextShipShoot(_shoot, coord, num) {
+            let _xy;
+            if (ship_shoot.dirSign) {
+                _xy = {
+                    x: ship_shoot.dirSign > 0 && coord.x ? _shoot.x + num : (coord.x === 0 ? _shoot.x : _shoot.x - num),
+                    y: ship_shoot.dirSign > 0 && coord.y ? _shoot.y + num : (coord.y === 0 ? _shoot.y : _shoot.y - num),
+                };
+            } else {
+                _xy = {
+                    x: coord.x > 0 ? _shoot.x + num : (coord.x === 0 ? _shoot.x : _shoot.x - num),
+                    y: coord.y > 0 ? _shoot.y + num : (coord.y === 0 ? _shoot.y : _shoot.y - num),
+                };
+            }
+
+            _xy.cell = getCell(_xy.x, _xy.y)
+            return _xy;
+        }
+        function hitTheMark(_ship, _coord) {
+            _ship.cell.classList.add('shooted');
+            if (isShip(_ship)) {
+                _ship.dir = _coord.dir;
+                saveShipData(_ship, _coord);
+                _ship.cell.classList.add('wounded');
+                const coord = _ship.x+''+_ship.y;
+                for (let i = 0; i < ships.length; i++) {
+                    if (ships[i][coord]
+                        && ships[i][coord] == ship_shoot.cells
+                    ) {
+                        kill();
+                        break;
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+        function saveShipData(_ship, _coord) {
+            Object.assign(ship_shoot, _ship);
+            ship_shoot.coordX.push(_ship.x);
+            ship_shoot.coordY.push(_ship.y);
+            ship_shoot.cells++;
+            ship_shoot.wounded = true;
+            if (_coord) {
+                ship_shoot.dirSign = _coord.x ? _coord.x : _coord.y;
+            }
+        }
+        function markAround() {
+            let _x = ship_shoot.coordX;
+            let _y = ship_shoot.coordY;
+            _x.forEach((x, i) => {
+                for (let n = -1; n < 2; n++) {
+                    for (let m = -1; m < 2; m++) {
+                        let cell = getCell(x+n, _y[i]+m);
+                        if (cell && (cell.classList.contains('wounded') || cell.classList.contains('shooted'))) {
+                            continue;
+                        }
+                        cell && cell.classList.add('shooted');
+                    }
+                }
+            });
+        }
+        function getCell(x, y) {
+            return document.getElementById(x + ':' + y);
+        }
+
+    });
+</script>
+<style>
+    .cell{
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 1px solid lightskyblue;
+    }
+    .area{
+        line-height: .1;
+    }
+    .ship {
+        background-color: lightslategrey;
+    }
+    .shooted {
+        background-color: black;
+    }
+    .wounded {
+        background-color: lightpink;
+    }
+
+</style>
+</body>
+</html>
