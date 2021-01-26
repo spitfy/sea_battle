@@ -13,8 +13,40 @@
 
 <script>
     let area;
-    const AREA_XY = {x:10, y:10};
-    //const ships = {x:[], y:[]};
+    const settings = {
+        ships: [
+            {one: 4},
+            {two: 3},
+            {three: 2},
+            {four: 1},
+        ],
+        size: {
+            x:10,
+            y:10
+        },
+    };
+    class Ship {
+        constructor() {
+            this.can_drow = false;
+        }
+        startDrow(cell) {
+            this.can_drow = true;
+            cell.classList.add('ship');
+            this.addShip(cell);
+        }
+        drow(cell) {
+            cell.classList.add('ship');
+            this.addShip(cell);
+        }
+        addShip(cell) {
+            const _cell = cell.getAttribute('id').split(':');
+            __ship.push(_cell[0].concat(_cell[1]));
+        }
+        endDrow() {
+            __ship.forEach(cell => ships.push({[cell]:__ship.length}));
+            this.can_drow = false;
+        }
+    }
     const ships = [];
     let __ship = [];
     let shoot_btn
@@ -66,37 +98,30 @@
     document.addEventListener('DOMContentLoaded', function() {
         resetShip();
         area = document.getElementById('area');
-        for(let y = 0; y < AREA_XY.y; y++) {
-            for(let x = 0; x < AREA_XY.x; x++) {
+        for(let y = 0; y < settings.size.y; y++) {
+            for(let x = 0; x < settings.size.x; x++) {
                 const el = document.createElement('div');
                 el.classList.add('cell');
                 el.id = x + ':' + y;
                 area.appendChild(el);
-                if (x && x % (AREA_XY.x-1) == 0) {
+                if (x && x % (settings.size.x-1) == 0) {
                     const br = document.createElement('br');
                     area.appendChild(br);
                 }
             }
         }
-        let startDrow =  false;
+        const brush = new Ship();
         document.querySelectorAll('.cell').forEach((el) => {
-
             el.addEventListener('mousedown', function(e) {
-                startDrow = true;
-                const cell = e.target;
-                cell.classList.add('ship');
-                addShip(cell);
+                brush.startDrow(e.target);
             });
             el.addEventListener('mouseover', function(e) {
-                if (startDrow) {
-                    const cell = e.target;
-                    cell.classList.add('ship');
-                    addShip(cell);
+                if (brush.can_drow) {
+                    brush.drow(e.target);
                 }
             });
             el.addEventListener('mouseup', function() {
-                __ship.forEach(cell => ships.push({[cell]:__ship.length}))
-                startDrow = false;
+                brush.endDrow();
             });
         });
         const addShip = cell => {
@@ -163,8 +188,8 @@
         }
         function genRandomShoot(random_shoot) {
             let _shoot = {
-                    x: Math.floor(Math.random() * AREA_XY.x),
-                    y: Math.floor(Math.random() * AREA_XY.y)
+                    x: Math.floor(Math.random() * settings.size.x),
+                    y: Math.floor(Math.random() * settings.size.y)
                 };
             _shoot.cell = document.getElementById(_shoot.x + ':' + _shoot.y);
 
@@ -185,16 +210,16 @@
             }
         }
         function isCorner(_shoot) {
-            return ((_shoot.x + 1) == AREA_XY.x && (_shoot.y + 1) == AREA_XY.y
+            return ((_shoot.x + 1) == settings.size.x && (_shoot.y + 1) == settings.size.y
                 || _shoot.x == 0  && _shoot.y == 0
-                || (_shoot.x + 1) == AREA_XY.x  && _shoot.y == 0
-                || _shoot.x == 0  && (_shoot.y + 1) == AREA_XY.y
+                || (_shoot.x + 1) == settings.size.x  && _shoot.y == 0
+                || _shoot.x == 0  && (_shoot.y + 1) == settings.size.y
             );
         }
         function isOutOfBorders(_ship) {
-            return (_ship.x >= AREA_XY.x
+            return (_ship.x >= settings.size.x
                 || _ship.x < 0
-                || _ship.y >= AREA_XY.y
+                || _ship.y >= settings.size.y
                 || _ship.y < 0
             );
         }
@@ -212,6 +237,7 @@
         }
         function shootShip(_shoot, num = 1) {
             let _ship;
+            let _dirs = [];
             for (let coord of ship_shoot.coords) {
                 if (ship_shoot.dir && ship_shoot.dir !== coord.dir) {
                     continue;
@@ -219,12 +245,16 @@
                 if (ship_shoot.dirSign && ship_shoot.dirSign !== coord.dirSign) {
                     continue;
                 }
+                if (ship_shoot.dirSign && ship_shoot.dir) { // сохраняем направление атаки
+                    _dirs.push(coord.dir + ':' + coord.dirSign);
+                }
                 _ship = genNextShipShoot(_shoot, coord, num);
-                /*if (checkPrevious(_ship) && ship_shoot.dir) {
-                    _ship = genNextShipShoot(_ship, coord, num);
-                    break;
-                }*/
                 if (isOutOfBorders(_ship)) {
+                    ship_shoot.dirSign = -(coord.x ? coord.x : coord.y);
+                    if (_dirs.includes(ship_shoot.dir + ':' + ship_shoot.dirSign)) { // если уже пробовали стрелять в этом направлении, идем в рекурсию
+                        shootShip(_shoot, ship_shoot.cells);
+                        break;
+                    }
                     continue;
                 }
                 if (_ship.cell && _ship.cell.classList.contains('shooted')) {
