@@ -27,28 +27,85 @@
     };
     class Ship {
         constructor() {
+            this.ships = [];
+            this.ship = [];
+            this.ship_index = null;
+        }
+        init() {
+
+        }
+    }
+    class DrowShip extends Ship{
+        constructor() {
+            super();
             this.can_drow = false;
+            this.direction = {
+                axis: 0,
+                sign: 0
+            };
         }
         startDrow(cell) {
             this.can_drow = true;
+            this.ship = [];
             cell.classList.add('ship');
             this.addShip(cell);
         }
         drow(cell) {
-            cell.classList.add('ship');
-            this.addShip(cell);
+            if (this.ship.length == 2) {
+                this.setDirection();
+            }
+            if (this.ship.length >= 2 && this.checkDirection(cell)) {
+                cell.classList.add('ship');
+                this.addShip(cell);
+            } else if (this.ship.length < 2) {
+                cell.classList.add('ship');
+                this.addShip(cell);
+            }
+
         }
         addShip(cell) {
-            const _cell = cell.getAttribute('id').split(':');
-            __ship.push(_cell[0].concat(_cell[1]));
+            this.ship.push([this.getID(cell)[0], this.getID(cell)[1]]);
         }
         endDrow() {
-            __ship.forEach(cell => ships.push({[cell]:__ship.length}));
+            //this.ship.forEach(cell => this.ships.push({[cell]:this.ship.length}));
+            let _c = this.ship.map(cell => cell.join('')).map(function(cell) {
+                return {[cell]: this.ship.length}
+            }, this);
+            this.ships.push(_c);
             this.can_drow = false;
+            this.direction = {
+                axis: 0,
+                sign: 0
+            };
+        }
+        setDirection() {
+            let _x, _y;
+            this.ship.forEach((cell, i) => {
+                if (i == 0) {
+                    _x = cell[0];
+                    _y = cell[1];
+                } else {
+                    this.direction.axis = cell[0] === _x ? 1 : -1;
+                    this.direction.sign = (cell[0] < _x || cell[1] < _y) ? -1 : 1;
+                }
+            });
+        }
+        checkDirection(cell) {
+            const i = this.ship.length - 1;
+            return ((this.getID(cell)[0] === this.ship[i][0] && this.direction.axis === 1 &&
+                (this.direction.sign === -1 && this.getID(cell)[1] +1 == this.ship[i][1]
+                    || this.direction.sign === 1 && this.getID(cell)[1] == 1 + this.ship[i][1]))
+                ||
+                (this.getID(cell)[1] === this.ship[i][1] && this.direction.axis === -1 &&
+                    (this.direction.sign === -1 && this.getID(cell)[0] + 1 == this.ship[i][0]
+                        || this.direction.sign === 1 && this.getID(cell)[0] == 1 + this.ship[i][0]))
+            );
+        }
+        getID(cell) {
+            const _cell = cell.getAttribute('id').split(':');
+            return _cell.map(i => +i);
         }
     }
-    const ships = [];
-    let __ship = [];
     let shoot_btn
         ,wound_btn
         ,kill_btn;
@@ -89,12 +146,14 @@
             wounded: false,
             dir: 0,   // направление -1 - горизонтально, 1 - вертикально
             dirSign: 0,
-            coords: shuffle(COORDS)
+            coords: shuffle(COORDS),
+            shipIndex: null
         };
     }
     const shuffle = (arr) => {
         return arr.sort(() => Math.round(Math.random() * 100) - 50);
     }
+    const game = new DrowShip();
     document.addEventListener('DOMContentLoaded', function() {
         resetShip();
         area = document.getElementById('area');
@@ -110,24 +169,19 @@
                 }
             }
         }
-        const brush = new Ship();
         document.querySelectorAll('.cell').forEach((el) => {
             el.addEventListener('mousedown', function(e) {
-                brush.startDrow(e.target);
+                game.startDrow(e.target);
             });
             el.addEventListener('mouseover', function(e) {
-                if (brush.can_drow) {
-                    brush.drow(e.target);
+                if (game.can_drow) {
+                    game.drow(e.target);
                 }
             });
             el.addEventListener('mouseup', function() {
-                brush.endDrow();
+                game.endDrow();
             });
         });
-        const addShip = cell => {
-            const _cell = cell.getAttribute('id').split(':');
-            __ship.push(_cell[0].concat(_cell[1]));
-        }
 
         wound_btn = document.getElementById('wound_btn');
         wound_btn.addEventListener('click', function() {
@@ -137,8 +191,8 @@
         kill_btn = document.getElementById('kill_btn');
         kill_btn.addEventListener('click', function() {
             markAround();
-            genRandomShoot(random_shoot);
             resetShip();
+            genRandomShoot(random_shoot);
         });
         const kill = () => {
             markAround();
@@ -295,12 +349,19 @@
                 saveShipData(_ship, _coord);
                 _ship.cell.classList.add('wounded');
                 const coord = _ship.x+''+_ship.y;
-                for (let i = 0; i < ships.length; i++) {
-                    if (ships[i][coord]
-                        && ships[i][coord] == ship_shoot.cells
-                    ) {
-                        kill();
-                        break;
+                for (let i = 0; i < game.ships.length; i++) {
+                    if (ship_shoot.shipIndex && ship_shoot.shipIndex != i) {
+                        continue;
+                    }
+                    for (let j = 0; j < game.ships[i].length; j++) {
+                        if (game.ships[i][j][coord]) {
+                            if (game.ships[i][j][coord] == ship_shoot.cells) {
+                                kill();
+                                break;
+                            } else {
+                                ship_shoot.shipIndex = i;
+                            }
+                        }
                     }
                 }
                 return true;
