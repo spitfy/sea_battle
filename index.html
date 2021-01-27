@@ -147,7 +147,7 @@
             dir: 0,   // направление -1 - горизонтально, 1 - вертикально
             dirSign: 0,
             coords: shuffle(COORDS),
-            shipIndex: null
+            size: 0 // размер текущего корабля
         };
     }
     const shuffle = (arr) => {
@@ -299,12 +299,15 @@
                 if (ship_shoot.dirSign && ship_shoot.dirSign !== coord.dirSign) {
                     continue;
                 }
+                if (ship_shoot.size === ship_shoot.cells) {
+                    kill();
+                }
                 if (ship_shoot.dirSign && ship_shoot.dir) { // сохраняем направление атаки
                     _dirs.push(coord.dir + ':' + coord.dirSign);
                 }
                 _ship = genNextShipShoot(_shoot, coord, num);
                 if (isOutOfBorders(_ship)) {
-                    ship_shoot.dirSign = -(coord.x ? coord.x : coord.y);
+                    revertDir(coord);
                     if (_dirs.includes(ship_shoot.dir + ':' + ship_shoot.dirSign)) { // если уже пробовали стрелять в этом направлении, идем в рекурсию
                         shootShip(_shoot, ship_shoot.cells);
                         break;
@@ -312,9 +315,7 @@
                     continue;
                 }
                 if (_ship.cell && _ship.cell.classList.contains('shooted')) {
-                    if (_ship.cell.classList.contains('wounded')) {
-                        shootShip(_shoot, ship_shoot.cells);
-                    }
+                    revertDir(coord);
                     if (ship_shoot.dir) {
                         ship_shoot.dirSign = -(coord.x ? coord.x : coord.y);
                     }
@@ -324,6 +325,10 @@
                     break;
                 }
             }
+        }
+        function revertDir(coord) {
+            if (!ship_shoot.dir) return;
+            ship_shoot.dirSign = -(coord.x ? coord.x : coord.y);
         }
         function genNextShipShoot(_shoot, coord, num) {
             let _xy;
@@ -349,20 +354,17 @@
                 saveShipData(_ship, _coord);
                 _ship.cell.classList.add('wounded');
                 const coord = _ship.x+''+_ship.y;
-                for (let i = 0; i < game.ships.length; i++) {
-                    if (ship_shoot.shipIndex && ship_shoot.shipIndex != i) {
-                        continue;
-                    }
-                    for (let j = 0; j < game.ships[i].length; j++) {
-                        if (game.ships[i][j][coord]) {
-                            if (game.ships[i][j][coord] == ship_shoot.cells) {
-                                kill();
-                                break;
-                            } else {
-                                ship_shoot.shipIndex = i;
+                if (!ship_shoot.size) {
+                    for (let i = 0; i < game.ships.length; i++) {
+                        for (let j = 0; j < game.ships[i].length; j++) {
+                            if (game.ships[i][j][coord]) {
+                                ship_shoot.size = game.ships[i][j][coord];
                             }
                         }
                     }
+                }
+                if (ship_shoot.size === ship_shoot.cells) {
+                    kill();
                 }
                 return true;
             }
