@@ -1,31 +1,35 @@
 "use strict";
     let area = {man: null, cpu: null};
     const settings = {
-        ships: [
-            {one: 4},
-            {two: 3},
-            {three: 2},
-            {four: 1},
-        ],
+        ships: {
+            one: 4,
+            two: 3,
+            three: 2,
+            four: 1,
+        },
         size: {
             x:10,
             y:10
         },
     };
     class Ship {
-        constructor() {
+        constructor(area) {
             this.ships = [];
             this.ship = [];
             this.ship_index = null;
             this.cells = {x:[],y:[]}
+            this.area = area;
         }
         init() {
 
         }
+        getCell(x, y) {
+            return document.querySelector(`#${this.area} #${x}:${y}`);
+        }
     }
     class DrowShip extends Ship{
-        constructor() {
-            super();
+        constructor(area) {
+            super(area);
             this.can_drow = false;
             this.direction = {
                 axis: 0,
@@ -108,23 +112,6 @@
         checkNear(cell) {
             const _x = this.getID(cell)[0];
             const _y = this.getID(cell)[1];
-           /* let _same = false;
-            this.ship.forEach(el => {
-                if (_same) return;
-                let x = el[0];
-                let y = el[1];
-                if (x === _x && y - 1 === _y
-                    || x === _x && y + 1 === _y
-                    || x - 1 === _x && y === _y
-                    || x + 1 === _x && y === _y
-                ) {
-                    _same = true;
-                    return;
-                };
-            });
-            console.log(_x+':'+_y+' _same- '+_same)
-            if (_same) return false;*/
-            console.log(_x+':'+_y+' _same- ')
             const _cells = this.cells.x.filter((x, i) => {
                 let y = this.cells.y[i];
                 if (x + 1 === _x && y + 1 === _y
@@ -138,8 +125,28 @@
                 ) return true;
                 return false;
             }, this);
-            console.log(_x+':'+_y+' - '+_cells.length)
             return _cells.length;
+        }
+        generate() {
+            for (let num in settings.ships) {
+                for (let i = 0; i < settings.ships[num]; i++) {
+                    //let rand = this.randomCell();
+                    //rand.cell.classList.add('ship');
+                    const direction = shuffle(COORDS)[0];
+                }
+            }
+        }
+        randomCell() {
+            let rand = {
+                x: Math.floor(Math.random() * settings.size.x),
+                y: Math.floor(Math.random() * settings.size.y)
+            };
+            rand.cell = this.getCell(rand.x, rand.y);
+
+            if (!rand.cell || rand.cell.classList.contains('ship')) {
+                randomCell();
+            }
+            return rand.cell;
         }
     }
     let shoot_btn
@@ -189,7 +196,8 @@
     const shuffle = (arr) => {
         return arr.sort(() => Math.round(Math.random() * 100) - 50);
     }
-    const game = new DrowShip();
+    const game = new DrowShip('area-man');
+    game.generate();
     document.addEventListener('DOMContentLoaded', function() {
         resetShip();
         area.man = document.getElementById('area-man');
