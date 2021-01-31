@@ -12,19 +12,35 @@
             y:10
         },
     };
-    class Ship {
+    class Game {
         constructor(area) {
             this.ships = [];
             this.ship = [];
-            this.ship_index = null;
             this.cells = {x:[],y:[]}
-            this.area = area;
-        }
-        init() {
-
+            this.area =  {name: area, el: null};
         }
         getCell(x, y) {
-            return document.querySelector(`#${this.area} #${x}:${y}`);
+            return document.getElementById(`${this.area.name}${x}:${y}`);
+        }
+        init() {
+            area.el = document.getElementById('area-' + this.area.name);
+            for(let y = 0; y < settings.size.y; y++) {
+                for(let x = 0; x < settings.size.x; x++) {
+                    const el = document.createElement('div');
+                    el.classList.add('cell');
+                    el.id = this.area.name + x + ':' + y;
+                    area.el.appendChild(el);
+                    if (x && x % (settings.size.x-1) == 0) {
+                        const br = document.createElement('br');
+                        area.el.appendChild(br);
+                    }
+                }
+            }
+        }
+    }
+    class Ship extends Game{
+        constructor(area) {
+            super(area);
         }
     }
     class DrowShip extends Ship{
@@ -107,7 +123,7 @@
         }
         getID(cell) {
             const _cell = cell.getAttribute('id').split(':');
-            return _cell.map(i => +i);
+            return _cell.map(i => i.replace(/(cpu|man)/,'')).map(i => +i);
         }
         checkNear(cell) {
             const _x = this.getID(cell)[0];
@@ -130,8 +146,8 @@
         generate() {
             for (let num in settings.ships) {
                 for (let i = 0; i < settings.ships[num]; i++) {
-                    //let rand = this.randomCell();
-                    //rand.cell.classList.add('ship');
+                    let rand = this.randomCell();
+                    rand.cell.classList.add('ship');
                     const direction = shuffle(COORDS)[0];
                 }
             }
@@ -143,10 +159,10 @@
             };
             rand.cell = this.getCell(rand.x, rand.y);
 
-            if (!rand.cell || rand.cell.classList.contains('ship')) {
-                randomCell();
+            if (!rand.cell || rand.cell.classList.contains('ship')) { debugger
+                this.randomCell();
             }
-            return rand.cell;
+            return rand;
         }
     }
     let shoot_btn
@@ -196,37 +212,16 @@
     const shuffle = (arr) => {
         return arr.sort(() => Math.round(Math.random() * 100) - 50);
     }
-    const game = new DrowShip('area-man');
-    game.generate();
+    let game, gameCPU;
     document.addEventListener('DOMContentLoaded', function() {
         resetShip();
-        area.man = document.getElementById('area-man');
-        for(let y = 0; y < settings.size.y; y++) {
-            for(let x = 0; x < settings.size.x; x++) {
-                const el = document.createElement('div');
-                el.classList.add('cell');
-                el.id = x + ':' + y;
-                area.man.appendChild(el);
-                if (x && x % (settings.size.x-1) == 0) {
-                    const br = document.createElement('br');
-                    area.man.appendChild(br);
-                }
-            }
-        }
+        game = new DrowShip('man');
+        game.init();
 
-        area.cpu = document.getElementById('area-cpu');
-        for(let y = 0; y < settings.size.y; y++) {
-            for(let x = 0; x < settings.size.x; x++) {
-                const el = document.createElement('div');
-                el.classList.add('cell');
-                el.id = x + ':' + y;
-                area.cpu.appendChild(el);
-                if (x && x % (settings.size.x-1) == 0) {
-                    const br = document.createElement('br');
-                    area.cpu.appendChild(br);
-                }
-            }
-        }
+        gameCPU = new DrowShip('cpu');
+        gameCPU.init();
+        gameCPU.generate();
+
         /*area.onmouseout = e => {
             game.can_drow = false;
             console.log('out')
@@ -299,7 +294,7 @@
                 x: plusX ? random_shoot.x + 1 : random_shoot.x - 1,
                 y: plusY ? random_shoot.y + 1 : random_shoot.y - 1
             };
-            _xy.cell = document.getElementById(_xy.x + ':' + _xy.y)
+            _xy.cell = getCell(_xy.x + ':' + _xy.y)
             return _xy;
         }
         function genRandomShoot(random_shoot) {
@@ -307,7 +302,7 @@
                     x: Math.floor(Math.random() * settings.size.x),
                     y: Math.floor(Math.random() * settings.size.y)
                 };
-            _shoot.cell = document.getElementById(_shoot.x + ':' + _shoot.y);
+            _shoot.cell = getCell(_shoot.x + ':' + _shoot.y);
 
             if (_shoot.cell && !_shoot.cell.classList.contains('shooted')) {
                 shootRandom(_shoot, random_shoot);
@@ -460,7 +455,7 @@
             });
         }
         function getCell(x, y) {
-            return document.getElementById(x + ':' + y);
+            return document.getElementById('man' + x + ':' + y); // todo: сделать выборку из класса
         }
         const isEmpty = (obj) => {
             for (let prop in obj) {
