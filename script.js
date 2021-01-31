@@ -3,15 +3,22 @@
     const settings = {
         ships: {
             one: 4,
-            two: 3,
+            /*two: 3,
             three: 2,
-            four: 1,
+            four: 1,*/
         },
         size: {
             x:10,
             y:10
         },
+        nums: {
+            one: 1,
+            two: 2,
+            three: 3,
+            four: 4,
+        }
     };
+
     class Game {
         constructor(area) {
             this.ships = [];
@@ -148,7 +155,10 @@
                 for (let i = 0; i < settings.ships[num]; i++) {
                     let rand = this.randomCell();
                     rand.cell.classList.add('ship');
-                    const direction = shuffle(COORDS)[0];
+                    this.addShip(rand.cell);
+                    if (settings.nums[num] > 1) {
+                        this.getNextCell(rand, shuffle(COORDS)[0], settings.nums[num]);
+                    }
                 }
             }
         }
@@ -159,10 +169,62 @@
             };
             rand.cell = this.getCell(rand.x, rand.y);
 
-            if (!rand.cell || rand.cell.classList.contains('ship')) { debugger
-                this.randomCell();
+            if (!rand.cell
+                || rand.cell.classList.contains('ship')
+                || this.checkNear(rand.cell)
+            ) {
+                rand = this.randomCell();
             }
+            this.cells.x.push(rand.x);
+            this.cells.y.push(rand.y);
             return rand;
+        }
+        getNextCell(cell, direction, size) {
+            let i = 0;
+            let _arr = {x:[], y:[], cells:[]};
+            let _cell, _x, _y;
+            _arr.x.push(cell.x);
+            _arr.y.push(cell.y);
+            _arr.cells.push(cell.cell);
+
+            while (i < size) {
+                i++;
+                if (direction.x && direction.dir < 0) {
+                    _x = cell.x - 1;
+                    _cell = this.getCell(_x, rand.y);
+                }
+                if (direction.x && direction.dir > 0) {
+                    _x = cell.x + 1;
+                    _cell = this.getCell(_x, rand.y);
+                }
+                if (direction.y && direction.dir < 0) {
+                    _y = rand.y - 1;
+                    _cell = this.getCell(cell.x, _y);
+                }
+                if (direction.y && direction.dir > 0) {
+                    _y = rand.y + 1;
+                    _cell = this.getCell(cell.x, _y);
+                }
+                if (this.checkNear(_cell)) {
+                    let _direction = -direction.dir;
+                    _arr.x.length = 1;
+                    _arr.y.length = 1;
+                    this.getNextCell(cell, _direction);
+                } else {
+                    _arr.x.push(_x);
+                    _arr.y.push(_y);
+                    _arr.cells.push(_cell);
+                }
+            }
+            if (_arr.x.length === size) {
+                _arr.x.forEach((x, i) => {
+                    this.getCell(x, _arr.y[i]).classList.add('ship');
+                    this.addShip(_arr.cell[i]);
+                    this.cells.x.push(x);
+                    this.cells.y.push(_arr.y[i]);
+                });
+            }
+            return;
         }
     }
     let shoot_btn
@@ -294,7 +356,7 @@
                 x: plusX ? random_shoot.x + 1 : random_shoot.x - 1,
                 y: plusY ? random_shoot.y + 1 : random_shoot.y - 1
             };
-            _xy.cell = getCell(_xy.x + ':' + _xy.y)
+            _xy.cell = getCell(_xy.x, _xy.y)
             return _xy;
         }
         function genRandomShoot(random_shoot) {
@@ -302,7 +364,7 @@
                     x: Math.floor(Math.random() * settings.size.x),
                     y: Math.floor(Math.random() * settings.size.y)
                 };
-            _shoot.cell = getCell(_shoot.x + ':' + _shoot.y);
+            _shoot.cell = getCell(_shoot.x, _shoot.y);
 
             if (_shoot.cell && !_shoot.cell.classList.contains('shooted')) {
                 shootRandom(_shoot, random_shoot);
