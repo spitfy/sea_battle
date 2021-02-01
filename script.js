@@ -3,9 +3,9 @@
     const settings = {
         ships: {
             one: 4,
-            /*two: 3,
+            two: 3,
             three: 2,
-            four: 1,*/
+            four: 1,
         },
         size: {
             x:10,
@@ -25,6 +25,7 @@
             this.ship = [];
             this.cells = {x:[],y:[]}
             this.area =  {name: area, el: null};
+            this.resetDirection();
         }
         getCell(x, y) {
             return document.getElementById(`${this.area.name}${x}:${y}`);
@@ -43,6 +44,24 @@
                     }
                 }
             }
+        }
+        isOutOfBorders(cell) {
+            return (cell.x >= settings.size.x
+                || cell.x < 0
+                || cell.y >= settings.size.y
+                || cell.y < 0
+            );
+        }
+        revertDirection(dir = false, axis) {
+            if (dir) {
+                this.generateDir.changed = !this.generateDir.changed;
+            } else {
+                this.generateDir.axis = -axis;
+            }
+            return ++this.generateDir.cnt < 4;
+        }
+        resetDirection() {
+            this.generateDir = {changed: false, axis: 0, cnt: 0};// учитывается при генерации кораблей
         }
     }
     class Ship extends Game{
@@ -153,16 +172,21 @@
         generate() {
             for (let num in settings.ships) {
                 for (let i = 0; i < settings.ships[num]; i++) {
-                    let rand = this.randomCell();
+                    let rand = this.randomCell(settings.nums[num]);
                     rand.cell.classList.add('ship');
                     this.addShip(rand.cell);
                     if (settings.nums[num] > 1) {
-                        this.getNextCell(rand, shuffle(COORDS)[0], settings.nums[num]);
+                        if (this.getNextCell(rand, shuffle(COORDS)[0], settings.nums[num])) {
+                            this.resetDirection();
+                        }
+                        else {
+                            // todo реализовать рекурсию
+                        }
                     }
                 }
             }
         }
-        randomCell() {
+        randomCell(size) {
             let rand = {
                 x: Math.floor(Math.random() * settings.size.x),
                 y: Math.floor(Math.random() * settings.size.y)
@@ -175,56 +199,77 @@
             ) {
                 rand = this.randomCell();
             }
-            this.cells.x.push(rand.x);
-            this.cells.y.push(rand.y);
+            if (size === 1) {
+                this.cells.x.push(rand.x);
+                this.cells.y.push(rand.y);
+            }
             return rand;
         }
-        getNextCell(cell, direction, size) {
-            let i = 0;
+        getNextCell(cell, direction, size, change = false) {
+            let i = 1;
             let _arr = {x:[], y:[], cells:[]};
-            let _cell, _x, _y;
+            let _cell = {};
             _arr.x.push(cell.x);
             _arr.y.push(cell.y);
             _arr.cells.push(cell.cell);
 
+            if (this.generateDir.changed) { // меняем направление
+                direction.x = -direction.x;
+                direction.y = -direction.y;
+            }
+            if (this.generateDir.axis) { // меняем ось координат
+                let _x = direction.x;
+                direction.x = direction.x ? 0 : direction.y;
+                direction.y = direction.y ? 0 : _x;
+            }
+
             while (i < size) {
-                i++;
-                if (direction.x && direction.dir < 0) {
-                    _x = cell.x - 1;
-                    _cell = this.getCell(_x, rand.y);
+                if (direction.x && direction.x < 0) {
+                    _cell.x = cell.x - i;
+                    _cell.y = cell.y;
                 }
-                if (direction.x && direction.dir > 0) {
-                    _x = cell.x + 1;
-                    _cell = this.getCell(_x, rand.y);
+                if (direction.x && direction.x > 0) {
+                    _cell.x = cell.x + i;
+                    _cell.y = cell.y;
                 }
-                if (direction.y && direction.dir < 0) {
-                    _y = rand.y - 1;
-                    _cell = this.getCell(cell.x, _y);
+                if (direction.y && direction.y < 0) {
+                    _cell.x = cell.x;
+                    _cell.y = cell.y - i;
                 }
-                if (direction.y && direction.dir > 0) {
-                    _y = rand.y + 1;
-                    _cell = this.getCell(cell.x, _y);
+                if (direction.y && direction.y > 0) {
+                    _cell.x = cell.x;
+                    _cell.y = cell.y + i;
                 }
-                if (this.checkNear(_cell)) {
-                    let _direction = -direction.dir;
-                    _arr.x.length = 1;
-                    _arr.y.length = 1;
-                    this.getNextCell(cell, _direction);
+                _cell.el = this.getCell(_cell.x, _cell.y);
+
+                if (_cell.el && this.checkNear(_cell.el) || this.isOutOfBorders(_cell)) {
+                    change = !change;
+                    let axis = !change ? direction.dir : 0;
+                    if (this.revertDirection(change, axis)) {
+                        _arr.x.length = 1;
+                        _arr.y.length = 1;
+                        this.getNextCell(cell, direction, size, change);
+                    } else {
+                        return false;
+                    }
                 } else {
-                    _arr.x.push(_x);
-                    _arr.y.push(_y);
-                    _arr.cells.push(_cell);
+                    _arr.x.push(_cell.x);
+                    _arr.y.push(_cell.y);
+                    _arr.cells.push(_cell.el);
                 }
+                i++;
             }
             if (_arr.x.length === size) {
                 _arr.x.forEach((x, i) => {
                     this.getCell(x, _arr.y[i]).classList.add('ship');
-                    this.addShip(_arr.cell[i]);
+                    this.addShip(_arr.cells[i]);
                     this.cells.x.push(x);
                     this.cells.y.push(_arr.y[i]);
                 });
+                return true;
+            } else {
+                return false;
             }
-            return;
         }
     }
     let shoot_btn
