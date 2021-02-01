@@ -4,8 +4,8 @@
         ships: {
             one: 4,
             two: 3,
-            three: 2,
             four: 1,
+            three: 2,
         },
         size: {
             x:10,
@@ -170,19 +170,34 @@
             return _cells.length;
         }
         generate() {
-            for (let num in settings.ships) {
-                for (let i = 0; i < settings.ships[num]; i++) {
-                    let rand = this.randomCell(settings.nums[num]);
-                    rand.cell.classList.add('ship');
-                    this.addShip(rand.cell);
-                    if (settings.nums[num] > 1) {
-                        if (this.getNextCell(rand, shuffle(COORDS)[0], settings.nums[num])) {
-                            this.resetDirection();
-                        }
-                        else {
+            const getRandom = (num) => {
+                let rand = this.randomCell(settings.nums[num]);
+                if (settings.nums[num] > 1) {
+                    if (this.getNextCell(rand, shuffle(COORDS)[0], settings.nums[num])) {
+                        this.resetDirection();
+                        rand.cell.classList.add('ship');
+                        this.addShip(rand.cell);
+                        console.log(num + ': ' +settings.nums[num])
+                        return true;
+                    } else {
+                        if (getRandom(num)) {
+                            return true;
+                        } else {
                             // todo реализовать рекурсию
+                            console.log('что то пошло не так: ' + num + settings.nums[num])
+                            return false;
                         }
                     }
+                } else {
+                    rand.cell.classList.add('ship');
+                    this.addShip(rand.cell);
+                    console.log(num + ': ' +settings.nums[num])
+                    return true;
+                }
+            }
+            for (let num in settings.ships) {
+                for (let i = 0; i < settings.ships[num]; i++) {
+                    getRandom(num);
                 }
             }
         }
@@ -248,7 +263,7 @@
                     if (this.revertDirection(change, axis)) {
                         _arr.x.length = 1;
                         _arr.y.length = 1;
-                        this.getNextCell(cell, direction, size, change);
+                        return this.getNextCell(cell, direction, size, change);
                     } else {
                         return false;
                     }
