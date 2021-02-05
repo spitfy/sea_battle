@@ -70,5 +70,8 @@ class Game {
         const _cell = cell.getAttribute('id').split(':');
         return _cell.map(i => i.replace(/(cpu|man)/,'')).map(i => +i);
     }
+    shuffle(arr) {
+        return arr.sort(() => Math.round(Math.random() * 100) - 50);
+    }
 }
 export { Game };
