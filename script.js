@@ -1,5 +1,4 @@
 "use strict";
-    import { Game } from './classes/game.js';
     let area = {man: null, cpu: null};
     const settings = {
         ships: {
@@ -19,6 +18,7 @@
             four: 4,
         }
     };
+    import { Game } from './classes/game.js';
 
     /*class Game {
         constructor(area) {
@@ -93,8 +93,9 @@
         }
     }*/
     class Human extends Game{
-        constructor(area) {
-            super(area);
+        constructor(settings) {
+            super(settings);
+            this.area.name = 'man';
             this.can_drow = false;
             this.direction = {
                 axis: 0,
@@ -164,8 +165,9 @@
         }
     }
     class CPU extends Game{
-        constructor(area) {
-            super(area);
+        constructor(settings) {
+            super(settings);
+            this.area.name = 'cpu';
             this.can_drow = false;
             this.direction = {
                 axis: 0,
@@ -340,10 +342,10 @@
     let game, gameCPU;
     document.addEventListener('DOMContentLoaded', function() {
         resetShip();
-        game = new Human('man');
+        game = new Human(settings);
         game.init();
 
-        gameCPU = new CPU('cpu');
+        gameCPU = new CPU(settings);
         gameCPU.init();
         gameCPU.generate();
 

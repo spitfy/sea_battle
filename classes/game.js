@@ -1,33 +1,34 @@
 class Game {
-    constructor(area) {
+    constructor(settings) {
+        this.settings = settings;
         this.ships = [];
         this.ship = [];
         this.cells = {x:[],y:[]}
-        this.area =  {name: area, el: null};
+        this.area =  {name: null, el: null};
         this.resetDirection();
     }
     getCell(x, y) {
         return document.getElementById(`${this.area.name}${x}:${y}`);
     }
     init() {
-        area.el = document.getElementById('area-' + this.area.name);
-        for(let y = 0; y < settings.size.y; y++) {
-            for(let x = 0; x < settings.size.x; x++) {
+        this.area.el = document.getElementById('area-' + this.area.name);
+        for(let y = 0; y < this.settings.size.y; y++) {
+            for(let x = 0; x < this.settings.size.x; x++) {
                 const el = document.createElement('div');
                 el.classList.add('cell');
                 el.id = this.area.name + x + ':' + y;
-                area.el.appendChild(el);
-                if (x && x % (settings.size.x-1) == 0) {
+                this.area.el.appendChild(el);
+                if (x && x % (this.settings.size.x-1) == 0) {
                     const br = document.createElement('br');
-                    area.el.appendChild(br);
+                    this.area.el.appendChild(br);
                 }
             }
         }
     }
     isOutOfBorders(cell) {
-        return (cell.x >= settings.size.x
+        return (cell.x >= this.settings.size.x
             || cell.x < 0
-            || cell.y >= settings.size.y
+            || cell.y >= this.settings.size.y
             || cell.y < 0
         );
     }
