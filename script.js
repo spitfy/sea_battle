@@ -1,4 +1,5 @@
 "use strict";
+    import { Game } from './classes/game.js';
     let area = {man: null, cpu: null};
     const settings = {
         ships: {
@@ -19,7 +20,7 @@
         }
     };
 
-    class Game {
+    /*class Game {
         constructor(area) {
             this.ships = [];
             this.ship = [];
@@ -90,7 +91,7 @@
             const _cell = cell.getAttribute('id').split(':');
             return _cell.map(i => i.replace(/(cpu|man)/,'')).map(i => +i);
         }
-    }
+    }*/
     class Human extends Game{
         constructor(area) {
             super(area);
