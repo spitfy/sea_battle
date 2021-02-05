@@ -63,13 +63,35 @@
         resetDirection() {
             this.generateDir = {changed: false, axis: 0, cnt: 0};// учитывается при генерации кораблей
         }
-    }
-    class Ship extends Game{
-        constructor(area) {
-            super(area);
+        checkNear(cell) {
+            const _x = this.getID(cell)[0];
+            const _y = this.getID(cell)[1];
+            const _cells = this.cells.x.filter((x, i) => {
+                let y = this.cells.y[i];
+                if (x + 1 === _x && y + 1 === _y
+                    || x - 1 === _x && y - 1 === _y
+                    || x - 1 === _x && y + 1 === _y
+                    || x + 1 === _x && y - 1 === _y
+                    || x === _x && y - 1 === _y
+                    || x === _x && y + 1 === _y
+                    || x - 1 === _x && y === _y
+                    || x + 1 === _x && y === _y
+                ) return true;
+                return false;
+            }, this);
+            return _cells.length;
+        }
+        addShip(cell) {
+            const _x = this.getID(cell)[0];
+            const _y = this.getID(cell)[1];
+            this.ship.push([_x, _y]);
+        }
+        getID(cell) {
+            const _cell = cell.getAttribute('id').split(':');
+            return _cell.map(i => i.replace(/(cpu|man)/,'')).map(i => +i);
         }
     }
-    class DrowShip extends Ship{
+    class Human extends Game{
         constructor(area) {
             super(area);
             this.can_drow = false;
@@ -77,7 +99,6 @@
                 axis: 0,
                 sign: 0
             };
-            this.currentElem = null;
         }
         startDrow(cell) {
             if (this.checkNear(cell)) return;
@@ -99,13 +120,6 @@
                 cell.classList.add('ship');
                 this.addShip(cell);
             }
-        }
-        addShip(cell) {
-            const _x = this.getID(cell)[0];
-            const _y = this.getID(cell)[1];
-            this.ship.push([_x, _y]);
-            //this.cells.x.push(_x);
-            //this.cells.y.push(_y);
         }
         endDrow() {
             //this.ship.forEach(cell => this.ships.push({[cell]:this.ship.length}));
@@ -139,35 +153,23 @@
         checkDirection(cell) {
             const i = this.ship.length - 1;
             return ((this.getID(cell)[0] === this.ship[i][0] && this.direction.axis === 1 &&
-                (this.direction.sign === -1 && this.getID(cell)[1] +1 == this.ship[i][1]
-                    || this.direction.sign === 1 && this.getID(cell)[1] == 1 + this.ship[i][1]))
+                    (this.direction.sign === -1 && this.getID(cell)[1] +1 == this.ship[i][1]
+                        || this.direction.sign === 1 && this.getID(cell)[1] == 1 + this.ship[i][1]))
                 ||
                 (this.getID(cell)[1] === this.ship[i][1] && this.direction.axis === -1 &&
                     (this.direction.sign === -1 && this.getID(cell)[0] + 1 == this.ship[i][0]
                         || this.direction.sign === 1 && this.getID(cell)[0] == 1 + this.ship[i][0]))
             );
         }
-        getID(cell) {
-            const _cell = cell.getAttribute('id').split(':');
-            return _cell.map(i => i.replace(/(cpu|man)/,'')).map(i => +i);
-        }
-        checkNear(cell) {
-            const _x = this.getID(cell)[0];
-            const _y = this.getID(cell)[1];
-            const _cells = this.cells.x.filter((x, i) => {
-                let y = this.cells.y[i];
-                if (x + 1 === _x && y + 1 === _y
-                    || x - 1 === _x && y - 1 === _y
-                    || x - 1 === _x && y + 1 === _y
-                    || x + 1 === _x && y - 1 === _y
-                    || x === _x && y - 1 === _y
-                    || x === _x && y + 1 === _y
-                    || x - 1 === _x && y === _y
-                    || x + 1 === _x && y === _y
-                ) return true;
-                return false;
-            }, this);
-            return _cells.length;
+    }
+    class CPU extends Game{
+        constructor(area) {
+            super(area);
+            this.can_drow = false;
+            this.direction = {
+                axis: 0,
+                sign: 0
+            };
         }
         generate() {
             const getRandom = (num) => {
@@ -337,10 +339,10 @@
     let game, gameCPU;
     document.addEventListener('DOMContentLoaded', function() {
         resetShip();
-        game = new DrowShip('man');
+        game = new Human('man');
         game.init();
 
-        gameCPU = new DrowShip('cpu');
+        gameCPU = new CPU('cpu');
         gameCPU.init();
         gameCPU.generate();
 
