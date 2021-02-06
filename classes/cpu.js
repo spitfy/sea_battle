@@ -35,6 +35,7 @@ class CPU extends Game{
                 dirSign: -1,
             },
         ];
+        this.resetShip();
     }
     generate() {
         const getRandom = (num) => {
@@ -42,11 +43,9 @@ class CPU extends Game{
             if (this.settings.nums[num] > 1) {
                 if (this.getNextCell(rand, this.shuffle(this.COORDS)[0], this.settings.nums[num])) {
                     this.resetDirection();
-                    rand.cell.classList.add('ship');
-                    this.addShip(rand.cell);
-                    console.log(num + ': ' +this.settings.nums[num])
                     return true;
                 } else {
+                    this.ship = [];
                     if (getRandom(num)) {
                         return true;
                     } else {
@@ -58,6 +57,7 @@ class CPU extends Game{
             } else {
                 rand.cell.classList.add('ship');
                 this.addShip(rand.cell);
+                this.addAllships();
                 console.log(num + ': ' +this.settings.nums[num])
                 return true;
             }
@@ -148,10 +148,24 @@ class CPU extends Game{
                 this.cells.x.push(x);
                 this.cells.y.push(_arr.y[i]);
             });
+            this.addAllships();
             return true;
         } else {
             return false;
         }
+    }
+    kill() {
+        super.kill();
+        //genRandomShoot(random_shoot); todo
+    }
+    resetShip() {
+        super.resetShip();
+        this.shipShoot.coords = this.shuffle(this.COORDS);
+        this.shipShoot.cells = 0;
+        this.shipShoot.wounded = false;
+        this.shipShoot.dir = 0; // направление -1 - горизонтально, 1 - вертикально
+        this.shipShoot.dirSign = 0;
+        this.shipShoot.size = 0; // размер текущего корабля
     }
 }
 export {CPU};

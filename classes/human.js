@@ -9,6 +9,7 @@ class Human extends Game{
             axis: 0,
             sign: 0
         };
+        this.currentShip = {size: 0, shooted: 0};
     }
     startDrow(cell) {
         if (this.checkNear(cell)) return;
@@ -33,16 +34,16 @@ class Human extends Game{
     }
     endDrow() {
         //this.ship.forEach(cell => this.ships.push({[cell]:this.ship.length}));
-        let _c = this.ship.map(cell => cell.join('')).map(function(cell) {
+        /*let _c = this.ship.map(cell => cell.join('')).map(function(cell) {
             return {[cell]: this.ship.length}
         }, this);
-        this.ships.push(_c);
+        this.ships.push(_c);*/
         this.ship.forEach(cell => {
             this.cells.x.push(cell[0]);
             this.cells.y.push(cell[1]);
         });
         this.can_drow = false;
-        this.ship = [];
+        this.addAllships();
         this.direction = {
             axis: 0,
             sign: 0
@@ -70,6 +71,25 @@ class Human extends Game{
                 (this.direction.sign === -1 && this.getID(cell)[0] + 1 == this.ship[i][0]
                     || this.direction.sign === 1 && this.getID(cell)[0] == 1 + this.ship[i][0]))
         );
+    }
+    shoot(cell, ships) {
+        if (cell.classList.contains('ship')) {
+            const ship = this.getID(cell);
+            ship.x = ship[0];
+            ship.y = ship[1];
+            this.currentShip.shooted++;
+            this.shipShoot.coordX.push(ship.x);
+            this.shipShoot.coordY.push(ship.y);
+            cell.classList.add('wounded', 'shooted');
+            console.log('size', this.getShipSize(ship, ships));
+            console.log('shooted', this.currentShip.shooted);
+            if (this.getShipSize(ship, ships) === this.currentShip.shooted) {
+                this.kill('cpu');
+                this.currentShip.shooted = 0;
+            }
+        } else {
+            cell.classList.add('shooted');
+        }
     }
 }
 export { Human };

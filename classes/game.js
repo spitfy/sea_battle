@@ -6,16 +6,21 @@ class Game {
         this.cells = {x:[],y:[]}
         this.area =  {name: null, el: null};
         this.resetDirection();
+        this.shipShoot = {
+            coordX: [],
+            coordY: []
+        };
     }
-    getCell(x, y) {
-        return document.getElementById(`${this.area.name}${x}:${y}`);
+    getCell(x, y, area = '') {
+        const id = area || this.area.name;
+        return document.getElementById(`${id}${x}:${y}`);
     }
     init() {
         this.area.el = document.getElementById('area-' + this.area.name);
         for(let y = 0; y < this.settings.size.y; y++) {
             for(let x = 0; x < this.settings.size.x; x++) {
                 const el = document.createElement('div');
-                el.classList.add('cell');
+                el.classList.add('cell', this.area.name);
                 el.id = this.area.name + x + ':' + y;
                 this.area.el.appendChild(el);
                 if (x && x % (this.settings.size.x-1) == 0) {
@@ -66,12 +71,55 @@ class Game {
         const _y = this.getID(cell)[1];
         this.ship.push([_x, _y]);
     }
+    addAllships() {
+        let _c = this.ship.map(cell => cell.join('')).map(function(cell) {
+            return {[cell]: this.ship.length}
+        }, this);
+        this.ships.push(_c);
+        this.ship = [];
+    }
     getID(cell) {
         const _cell = cell.getAttribute('id').split(':');
         return _cell.map(i => i.replace(/(cpu|man)/,'')).map(i => +i);
     }
     shuffle(arr) {
         return arr.sort(() => Math.round(Math.random() * 100) - 50);
+    }
+    kill(area) {
+        this.markAround(area);
+        this.resetShip();
+    }
+    markAround(area) {
+        let _x = this.shipShoot.coordX;
+        let _y = this.shipShoot.coordY;
+        _x.forEach((x, i) => {
+            for (let n = -1; n < 2; n++) {
+                for (let m = -1; m < 2; m++) {
+                    let cell = this.getCell(x+n, _y[i]+m, area);
+                    if (cell && (cell.classList.contains('wounded') || cell.classList.contains('shooted'))) {
+                        continue;
+                    }
+                    cell && cell.classList.add('shooted');
+                }
+            }
+        });
+    }
+    getShipSize(ship, ships) {
+        const coord = ship.x+''+ship.y;
+        for (let i = 0; i < ships.length; i++) {
+            for (let j = 0; j < ships[i].length; j++) {
+                if (ships[i][j][coord]) {
+                    return ships[i][j][coord];
+                }
+            }
+        }
+        return false;
+    }
+    resetShip() {
+        this.shipShoot = {
+            coordX: [],
+            coordY: []
+        };
     }
 }
 export { Game };

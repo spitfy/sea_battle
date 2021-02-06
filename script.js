@@ -18,7 +18,6 @@
             four: 4,
         }
     };
-    import { Game } from './classes/game.js';
     import { Human } from './classes/human.js';
     import { CPU } from './classes/cpu.js';
 
@@ -71,31 +70,34 @@
     const shuffle = (arr) => {
         return arr.sort(() => Math.round(Math.random() * 100) - 50);
     }
-    let game, gameCPU;
+    const gameMan =  new Human(settings);
+    const gameCPU =  new CPU(settings);
     document.addEventListener('DOMContentLoaded', function() {
         resetShip();
-        game = new Human(settings);
-        game.init();
-
-        gameCPU = new CPU(settings);
+        gameMan.init();
         gameCPU.init();
         gameCPU.generate();
 
         /*area.onmouseout = e => {
-            game.can_drow = false;
+            gameMan.can_drow = false;
             console.log('out')
         }*/
-        document.querySelectorAll('.cell').forEach((el) => {
+        document.querySelectorAll('.cell.man').forEach((el) => {
             el.addEventListener('mousedown', function(e) {
-                game.startDrow(e.target);
+                gameMan.startDrow(e.target);
             });
             el.addEventListener('mouseover', function(e) {
-                if (game.can_drow) {
-                    game.drow(e.target);
+                if (gameMan.can_drow) {
+                    gameMan.drow(e.target);
                 }
             });
             el.addEventListener('mouseup', function() {
-                game.endDrow();
+                gameMan.endDrow();
+            });
+        });
+        document.querySelectorAll('.cell.cpu').forEach((el) => {
+            el.addEventListener('click', function(e) {
+                gameMan.shoot(e.target, gameCPU.ships);
             });
         });
 
@@ -271,10 +273,10 @@
                 saveShipData(_ship, _coord);
                 const coord = _ship.x+''+_ship.y;
                 if (!ship_shoot.size) {
-                    for (let i = 0; i < game.ships.length; i++) {
-                        for (let j = 0; j < game.ships[i].length; j++) {
-                            if (game.ships[i][j][coord]) {
-                                ship_shoot.size = game.ships[i][j][coord];
+                    for (let i = 0; i < gameMan.ships.length; i++) {
+                        for (let j = 0; j < gameMan.ships[i].length; j++) {
+                            if (gameMan.ships[i][j][coord]) {
+                                ship_shoot.size = gameMan.ships[i][j][coord];
                             }
                         }
                     }
