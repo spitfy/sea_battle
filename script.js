@@ -97,7 +97,9 @@
         });
         document.querySelectorAll('.cell.cpu').forEach((el) => {
             el.addEventListener('click', function(e) {
-                gameMan.shoot(e.target, gameCPU.ships);
+                if (!gameMan.shoot(e.target, gameCPU.ships)) {
+                    gameCPU.shoot(gameMan.ships)
+                }
             });
         });
 

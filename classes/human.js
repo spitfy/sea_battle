@@ -73,7 +73,7 @@ class Human extends Game{
         );
     }
     shoot(cell, ships) {
-        if (cell.classList.contains('ship')) {
+        if (this.isShip(cell)) {
             const ship = this.getID(cell);
             ship.x = ship[0];
             ship.y = ship[1];
@@ -81,15 +81,14 @@ class Human extends Game{
             this.shipShoot.coordX.push(ship.x);
             this.shipShoot.coordY.push(ship.y);
             cell.classList.add('wounded', 'shooted');
-            console.log('size', this.getShipSize(ship, ships));
-            console.log('shooted', this.currentShip.shooted);
             if (this.getShipSize(ship, ships) === this.currentShip.shooted) {
                 this.kill('cpu');
                 this.currentShip.shooted = 0;
             }
-        } else {
-            cell.classList.add('shooted');
+            return true;
         }
+        cell.classList.add('shooted');
+        return false;
     }
 }
 export { Human };

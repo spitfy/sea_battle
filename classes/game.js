@@ -121,5 +121,16 @@ class Game {
             coordY: []
         };
     }
+    isShip(_shoot) {
+        return _shoot.classList.contains('ship');
+    }
+    isEmpty(obj) {
+        for (let prop in obj) {
+            if (obj.hasOwnProperty(prop)) {
+                return false;
+            }
+        }
+        return JSON.stringify(obj) === JSON.stringify({});
+    }
 }
 export { Game };
