@@ -21,19 +21,48 @@
         display: inline-block;
         width: 20px;
         height: 20px;
-        border: 1px solid lightskyblue;
+        border: 2px solid lightskyblue;
+        position: relative;
     }
     .area{
         line-height: .1;
     }
     .ship {
-        background-color: lightslategrey;
+        position: relative;
+    }
+    .ship::before {
+        content: '';
+        position: absolute;
+        display: block;
+        width: 99%;
+        height: 98%;
+        top: -2px;
+        border: 2px solid black;
+        left: -2px;
     }
     .shooted {
-        background-color: black;
+        position: relative;
+    }
+    .shooted::after {
+        content: '';
+        position: absolute;
+        top: calc(50% - 2.5px);
+        left: calc(50% - 2.5px);
+        background-color: #352f2f;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
     }
     .wounded {
-        background-color: lightpink;
+        position: relative;
+    }
+    .wounded::after {
+        content: '\00274C';
+        position: absolute;
+        top: 48%;
+        left: -1px;
+        color: #331f1f;
+        background-color: transparent;
     }
     .wrapper {
         display: flex;
