@@ -7,7 +7,14 @@ class CPU extends Game{
         this.can_drow = false;
         this.isRandomShoot = true;
         this.randomShoot = {};
-        this.shipsMan = [];
+        this.shipsMan = []; // корабли человека
+        this.shoots = {x: [], y: []};
+        this.shipKilled = {
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+        };//потопленные корабли человека
         this.direction = {
             axis: 0,
             sign: 0
@@ -158,6 +165,7 @@ class CPU extends Game{
         }
     }
     kill() {
+        this.shipKilled[this.shipShoot.size]++;
         super.kill();
         this.genRandomShoot(this.randomShoot);// todo
     }
@@ -170,6 +178,28 @@ class CPU extends Game{
         this.shipShoot.dirSign = 0;
         this.shipShoot.size = 0; // размер текущего корабля
     }
+    isBigShipsAlive() { // проверяем остались ли большие корабли
+        for (let i in this.shipKilled) {
+            if (i > 1 && this.shipKilled[i] < this.settings.ships[this.settings.word[i]]) {
+                return true;
+            }
+        }
+        return false;
+    }
+    checkNearShoot(shoot) {
+        const _x = shoot.x;
+        const _y = shoot.y;
+        const _cells = this.shoots.x.filter((x, i) => {
+            let y = this.shoots.y[i];
+            if (x === _x && y - 1 === _y
+                || x === _x && y + 1 === _y
+                || x - 1 === _x && y === _y
+                || x + 1 === _x && y === _y
+            ) return true;
+            return false;
+        }, this);
+        return _cells.length;
+    }
     shoot(ships) {
         if (this.isEmpty(ships)) {
             this.shipsMan = ships;
@@ -178,24 +208,24 @@ class CPU extends Game{
             this.shootShip(this.shipShoot);
             return;
         }
-        if (!this.isRandomShoot && !this.isCorner(this.randomShoot)) {
+        if (!this.isRandomShoot && !this.isCorner(this.randomShoot) && this.isBigShipsAlive()) {
             let _shoot = this.genNextShoot();
-            if (_shoot.cell && !_shoot.cell.classList.contains('shooted')) {
+            if (_shoot.cell && !_shoot.cell.classList.contains('shooted') && !this.checkNearShoot(_shoot)) {
                 this.shootRandom(_shoot, this.randomShoot);
                 return;
             }
             _shoot = this.genNextShoot(false);
-            if (_shoot.cell && !_shoot.cell.classList.contains('shooted')) {
+            if (_shoot.cell && !_shoot.cell.classList.contains('shooted') && !this.checkNearShoot(_shoot)) {
                 this.shootRandom(_shoot, this.randomShoot);
                 return;
             }
             _shoot = this.genNextShoot(true, false);
-            if (_shoot.cell && !_shoot.cell.classList.contains('shooted')) {
+            if (_shoot.cell && !_shoot.cell.classList.contains('shooted') && !this.checkNearShoot(_shoot)) {
                 this.shootRandom(_shoot, this.randomShoot);
                 return;
             }
             _shoot = this.genNextShoot(false, false);
-            if (_shoot.cell && !_shoot.cell.classList.contains('shooted')) {
+            if (_shoot.cell && !_shoot.cell.classList.contains('shooted') && !this.checkNearShoot(_shoot)) {
                 this.shootRandom(_shoot, this.randomShoot);
                 return;
             }
@@ -228,11 +258,10 @@ class CPU extends Game{
     }
     shootRandom(_shoot, random_shoot) {
         if (this.isShip(_shoot.cell)) {
-            _shoot.cell.classList.add('shooted');
             this.hitTheMark(_shoot)
         } else {
-            _shoot.cell.classList.add('shooted');
             Object.assign(random_shoot, _shoot);
+            this.addShoot(_shoot);
         }
     }
     isCorner(_shoot) {
@@ -309,8 +338,13 @@ class CPU extends Game{
         _xy.cell = this.getCell(_xy.x, _xy.y, 'man')
         return _xy;
     }
+    addShoot(shoot) {
+        shoot.cell.classList.add('shooted');
+        this.shoots.x.push(shoot.x);
+        this.shoots.y.push(shoot.y);
+    }
     hitTheMark(_ship, _coord = {}) {
-        _ship.cell.classList.add('shooted');
+        this.addShoot(_ship);
         if (this.isShip(_ship.cell)) {
             this.saveShipData(_ship, _coord);
             const coord = _ship.x+''+_ship.y;
@@ -354,7 +388,11 @@ class CPU extends Game{
                     if (cell && (cell.classList.contains('wounded') || cell.classList.contains('shooted'))) {
                         continue;
                     }
-                    cell && cell.classList.add('shooted');
+                    cell && this.addShoot({
+                        x: x + n,
+                        y: _y[i] + m,
+                        cell: cell
+                    });
                 }
             }
         });

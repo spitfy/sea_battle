@@ -16,6 +16,12 @@
             two: 2,
             three: 3,
             four: 4,
+        },
+        word: {
+            1: 'one',
+            2: 'two',
+            3: 'three',
+            4: 'four',
         }
     };
     import { Human } from './classes/human.js';
@@ -105,7 +111,8 @@
 
         wound_btn = document.getElementById('wound_btn');
         wound_btn.addEventListener('click', function() {
-            shootShip(ship_shoot);
+            gameCPU.shoot(gameMan.ships)
+            //shootShip(ship_shoot);
         });
 
         kill_btn = document.getElementById('kill_btn');
