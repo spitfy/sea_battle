@@ -78,7 +78,16 @@
     }
     const gameMan =  new Human(settings);
     const gameCPU =  new CPU(settings);
+    const oneCellShip = document.getElementById('one-cell-ship');
+    const twoCellShip = document.getElementById('two-cell-ship');
+    const threeCellShip = document.getElementById('three-cell-ship');
+    const fourCellShip = document.getElementById('four-cell-ship');
     document.addEventListener('DOMContentLoaded', function() {
+        oneCellShip.innerText = settings.ships.one;
+        twoCellShip.innerText = settings.ships.two;
+        threeCellShip.innerText = settings.ships.three;
+        fourCellShip.innerText = settings.ships.four;
+
         resetShip();
         gameMan.init();
         gameCPU.init();
@@ -97,8 +106,8 @@
                     gameMan.drow(e.target);
                 }
             });
-            el.addEventListener('mouseup', function() {
-                gameMan.endDrow();
+            el.addEventListener('mouseup', function(e) {
+                gameMan.endDrow(e.target);
             });
         });
         document.querySelectorAll('.cell.cpu').forEach((el) => {

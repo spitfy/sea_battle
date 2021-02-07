@@ -65,7 +65,6 @@ class CPU extends Game{
                     }
                 }
             } else {
-                rand.cell.classList.add('ship');
                 this.addShip(rand.cell);
                 this.addAllships();
                 console.log(num + ': ' +this.settings.nums[num])
@@ -153,7 +152,7 @@ class CPU extends Game{
         }
         if (_arr.x.length === size) {
             _arr.x.forEach((x, i) => {
-                this.getCell(x, _arr.y[i]).classList.add('ship');
+                //this.getCell(x, _arr.y[i]).classList.add('ship');
                 this.addShip(_arr.cells[i]);
                 this.cells.x.push(x);
                 this.cells.y.push(_arr.y[i]);

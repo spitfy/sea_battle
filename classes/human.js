@@ -5,6 +5,12 @@ class Human extends Game{
         super(settings);
         this.area.name = 'man';
         this.can_drow = false;
+        this.usedShips =  {
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+        };
         this.direction = {
             axis: 0,
             sign: 0
@@ -13,41 +19,67 @@ class Human extends Game{
     }
     startDrow(cell) {
         if (this.checkNear(cell)) return;
+        if (this.usedShips[1] >= this.settings.ships.one) return;
         this.can_drow = true;
-        cell.classList.add('ship');
         this.addShip(cell);
     }
     drow(cell) {
         console.log('drow')
         //if (this.currentElem) return;
         if (this.checkNear(cell)) return;
+        if (this.usedShips[this.ship.length] >= this.settings.ships.one) return;
         if (this.ship.length == 2) {
             this.setDirection();
         }
         if (this.ship.length >= 2 && this.checkDirection(cell)) {
-            cell.classList.add('ship');
             this.addShip(cell);
         } else if (this.ship.length < 2) {
-            cell.classList.add('ship');
             this.addShip(cell);
         }
     }
     endDrow() {
-        //this.ship.forEach(cell => this.ships.push({[cell]:this.ship.length}));
-        /*let _c = this.ship.map(cell => cell.join('')).map(function(cell) {
-            return {[cell]: this.ship.length}
-        }, this);
-        this.ships.push(_c);*/
-        this.ship.forEach(cell => {
-            this.cells.x.push(cell[0]);
-            this.cells.y.push(cell[1]);
-        });
+        this.shipCnt();
+        const size = this.ship.length;
+        if (this.usedShips[size] > this.settings.ships[this.settings.word[size]]) {
+            // удаляем корабль
+            this.shipCnt(false);
+            console.table(this.cells)
+            this.ship.forEach((cell, i)=> {
+                this.getCell(cell[0], cell[1]).classList.remove('ship');
+            });
+            this.ship = [];
+            console.table(this.cells)
+        } else {
+            this.ship.forEach(cell => {
+                this.cells.x.push(cell[0]);
+                this.cells.y.push(cell[1]);
+            });
+            console.table(this.cells)
+            this.addAllships();
+        }
         this.can_drow = false;
-        this.addAllships();
         this.direction = {
             axis: 0,
             sign: 0
         };
+    }
+    checkShips() {
+        const size = this.ship.length;
+        for (let ship in this.settings.ships) {
+            if (this.settings.ships[ship] > size) return true;
+        }
+    }
+    shipCnt(pos = true) {
+        const ship = document.getElementById(this.settings.word[this.ship.length] + '-cell-ship');
+        if (!ship) return;
+        if (pos) {
+            ship.innerText = +ship.innerText - 1;
+            this.usedShips[this.ship.length]++;
+        } else {
+            ship.innerText = +ship.innerText + 1;
+            this.usedShips[this.ship.length]--;
+        }
+
     }
     setDirection() {
         let _x, _y;

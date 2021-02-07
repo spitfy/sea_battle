@@ -70,6 +70,7 @@ class Game {
         const _x = this.getID(cell)[0];
         const _y = this.getID(cell)[1];
         this.ship.push([_x, _y]);
+        cell.classList.add('ship');
     }
     addAllships() {
         let _c = this.ship.map(cell => cell.join('')).map(function(cell) {

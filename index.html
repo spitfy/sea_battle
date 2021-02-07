@@ -7,6 +7,26 @@
 </head>
 <body>
 <div class="wrapper">
+    <div class="ships">
+        <div class="unit">
+            <div class="unit-cell" id="one-cell-ship"></div>
+        </div>
+        <div class="unit">
+            <div class="unit-cell" id="two-cell-ship"></div>
+            <div class="unit-cell">&nbsp;</div>
+        </div>
+        <div class="unit">
+            <div class="unit-cell" id="three-cell-ship"></div>
+            <div class="unit-cell">&nbsp;</div>
+            <div class="unit-cell">&nbsp;</div>
+        </div>
+        <div class="unit">
+            <div class="unit-cell" id="four-cell-ship"></div>
+            <div class="unit-cell">&nbsp;</div>
+            <div class="unit-cell">&nbsp;</div>
+            <div class="unit-cell">&nbsp;</div>
+        </div>
+    </div>
     <div class="area" id="area-man"></div>
     <div class="area" id="area-cpu"></div>
 </div>
@@ -19,8 +39,8 @@
 <style>
     .cell{
         display: inline-block;
-        width: 20px;
-        height: 20px;
+        width: 40px;
+        height: 40px;
         border: 2px solid lightskyblue;
         position: relative;
     }
@@ -52,11 +72,11 @@
     .shooted::after {
         content: '';
         position: absolute;
-        top: calc(50% - 2.5px);
-        left: calc(50% - 2.5px);
+        top: calc(50% - 4px);
+        left: calc(50% - 4px);
         background-color: #352f2f;
-        width: 5px;
-        height: 5px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
     }
     .wounded {
@@ -68,11 +88,32 @@
         top: 48%;
         left: -1px;
         color: #331f1f;
+        font-size: 31px;
         background-color: transparent;
     }
     .wrapper {
         display: flex;
         justify-content: space-evenly;
+    }
+    .ships{
+        display: inline-block;
+        width: 200px;
+        position: relative;
+        padding: 10px;
+    }
+    .unit{
+        margin-bottom: 6px;
+    }
+    .unit-cell {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 2px solid black;
+        position: relative;
+        margin: 0 0 0 -6px;
+        font-size: 24px;
+        text-align: center;
+        line-height: 43px;
     }
 </style>
 </body>
