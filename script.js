@@ -1,5 +1,4 @@
 "use strict";
-    let area = {man: null, cpu: null};
     const settings = {
         ships: {
             one: 4,

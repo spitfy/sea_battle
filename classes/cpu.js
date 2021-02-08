@@ -51,7 +51,9 @@ class CPU extends Game{
         const getRandom = (num) => {
             let rand = this.randomCell(this.settings.nums[num]);
             if (this.settings.nums[num] > 1) {
-                if (this.getNextCell(rand, this.shuffle(this.COORDS)[0], this.settings.nums[num])) {
+                let coord = {};
+                Object.assign(coord, this.shuffle(this.COORDS)[0]);
+                if (this.getNextCell(rand, coord, this.settings.nums[num])) {
                     this.resetDirection();
                     return true;
                 } else {
@@ -76,6 +78,7 @@ class CPU extends Game{
                 getRandom(num);
             }
         }
+        console.log('generate', this.COORDS)
     }
     randomCell(size) {
         let rand = {
@@ -169,6 +172,7 @@ class CPU extends Game{
         this.genRandomShoot(this.randomShoot);// todo
     }
     resetShip() {
+        console.log('resetShip', this.COORDS)
         super.resetShip();
         this.shipShoot.coords = this.shuffle(this.COORDS);
         this.shipShoot.cells = 0;
@@ -200,7 +204,8 @@ class CPU extends Game{
         return _cells.length;
     }
     shoot(ships) {
-        if (this.isEmpty(ships)) {
+        console.log('shoot', this.COORDS)
+        if (!this.shipsMan.length) {
             this.shipsMan = ships;
         }
         if (this.shipShoot.wounded) {
@@ -295,7 +300,7 @@ class CPU extends Game{
             }
             _ship = this.genNextShipShoot(_shoot, coord, num);
             if (this.isOutOfBorders(_ship)) {
-                revertDir(coord);
+                this.revertDir(coord);
                 if (_dirs.includes(this.shipShoot.dir + ':' + this.shipShoot.dirSign)) { // если уже пробовали стрелять в этом направлении, идем в рекурсию
                     this.shootShip(_shoot, this.shipShoot.cells);
                     break;
@@ -351,7 +356,7 @@ class CPU extends Game{
                 for (let i = 0; i < this.shipsMan.length; i++) { //todo
                     for (let j = 0; j < this.shipsMan[i].length; j++) {
                         if (this.shipsMan[i][j][coord]) {
-                            this.shipShoot.size = ships[i][j][coord];
+                            this.shipShoot.size = this.shipsMan[i][j][coord];
                         }
                     }
                 }

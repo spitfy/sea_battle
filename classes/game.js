@@ -16,6 +16,7 @@ class Game {
         return document.getElementById(`${id}${x}:${y}`);
     }
     init() {
+        console.log('init', this.COORDS)
         this.area.el = document.getElementById('area-' + this.area.name);
         for(let y = 0; y < this.settings.size.y; y++) {
             for(let x = 0; x < this.settings.size.x; x++) {
@@ -76,6 +77,7 @@ class Game {
         let _c = this.ship.map(cell => cell.join('')).map(function(cell) {
             return {[cell]: this.ship.length}
         }, this);
+        console.log('add_all', _c);
         this.ships.push(_c);
         this.ship = [];
     }
