@@ -10,6 +10,12 @@ class Game {
             coordX: [],
             coordY: []
         };
+        this.shipKilled = {
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+        };//потопленные корабли человека
     }
     getCell(x, y, area = '') {
         const id = area || this.area.name;
@@ -91,6 +97,9 @@ class Game {
     kill(area) {
         this.markAround(area);
         this.resetShip();
+        if (this.isEndGame()) {
+            this.showEndGameScreen();
+        }
     }
     markAround(area) {
         let _x = this.shipShoot.coordX;
@@ -134,6 +143,27 @@ class Game {
             }
         }
         return JSON.stringify(obj) === JSON.stringify({});
+    }
+    isEndGame() {
+        return this.compareShips(this.settings.ships, this.shipKilled);
+    }
+    compareShips(setting, ships) {
+        for (let i in setting) {
+            if (setting[i] !== ships[i]) return false;
+        }
+        return true;
+    }
+    showEndGameScreen() {
+        let message, area;
+        if (this.area.name === 'cpu') {
+            area = 'man';
+            message = 'Вы проиграли!';
+        } else {
+            area = 'cpu';
+            message = 'Вы победили!';
+        }
+        document.querySelector( `#area-${area} .end-screen`).style.display = 'flex';
+        document.querySelector( `#area-${area} .end-screen .loose`).innerHTML = message;
     }
 }
 export { Game };

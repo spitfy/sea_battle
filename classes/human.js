@@ -27,7 +27,7 @@ class Human extends Game{
         console.log('drow', cell)
         //if (this.currentElem) return;
         if (this.checkNear(cell)) return;
-        if (this.usedShips[this.ship.length] >= this.settings.ships.one) return;
+        if (this.usedShips[this.ship.length] >= this.settings.ships[1]) return;
         if (this.ship.length == 2) {
             this.setDirection();
         }
@@ -40,7 +40,7 @@ class Human extends Game{
     endDrow() {
         this.shipCnt();
         const size = this.ship.length;
-        if (this.usedShips[size] > this.settings.ships[this.settings.word[size]]
+        if (this.usedShips[size] > this.settings.ships[size]
             || size > 4
         ) {
             // удаляем корабль
@@ -56,20 +56,16 @@ class Human extends Game{
                 this.cells.x.push(cell[0]);
                 this.cells.y.push(cell[1]);
             });
-            console.table(this.cells)
             this.addAllships();
+            if (this.compareShips(this.settings.ships, this.usedShips)) {
+                document.querySelector( '#area-cpu .block-screen').style.display = 'none';
+            }
         }
         this.can_drow = false;
         this.direction = {
             axis: 0,
             sign: 0
         };
-    }
-    checkShips() {
-        const size = this.ship.length;
-        for (let ship in this.settings.ships) {
-            if (this.settings.ships[ship] > size) return true;
-        }
     }
     shipCnt(pos = true) {
         const ship = document.getElementById(this.settings.word[this.ship.length] + '-cell-ship');
@@ -106,6 +102,11 @@ class Human extends Game{
                     || this.direction.sign === 1 && this.getID(cell)[0] == 1 + this.ship[i][0]))
         );
     }
+    kill(area) {
+        this.shipKilled[this.currentShip.shooted]++;
+        super.kill(area);
+    }
+
     shoot(cell, ships) {
         if (this.isShip(cell)) {
             const ship = this.getID(cell);

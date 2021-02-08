@@ -27,8 +27,19 @@
             <div class="unit-cell">&nbsp;</div>
         </div>
     </div>
-    <div class="area" id="area-man"></div>
-    <div class="area" id="area-cpu"></div>
+    <div class="area" id="area-man">
+        <div class="end-screen">
+            <div class="loose"></div>
+        </div>
+    </div>
+    <div class="area" id="area-cpu">
+        <div class="end-screen">
+            <div class="loose"></div>
+        </div>
+        <div class="block-screen">
+            <div class="message">Расположите корабли</div>
+        </div>
+    </div>
 </div>
 
 <button id="shoot_btn">BOOM</button>
@@ -46,6 +57,7 @@
     }
     .area{
         line-height: .1;
+        position: relative;
     }
     .ship {
         position: relative;
@@ -114,6 +126,31 @@
         font-size: 24px;
         text-align: center;
         line-height: 43px;
+    }
+    .end-screen, .block-screen {
+        display: none;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+        width: 100%;
+        height: 100%;
+        border: 1px solid black;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        background-color: #c32038c9;
+    }
+    .loose, .message {
+        color: #c1b8cc;
+        font-size: 52px;
+        font-family: cursive;
+        text-shadow: 3px 3px 6px black;
+    }
+    .block-screen {
+        background-color: #000000c9;
+        display: flex;
+        line-height: 1.2;
     }
 </style>
 </body>

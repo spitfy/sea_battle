@@ -9,12 +9,6 @@ class CPU extends Game{
         this.randomShoot = {};
         this.shipsMan = []; // корабли человека
         this.shoots = {x: [], y: []};
-        this.shipKilled = {
-            1: 0,
-            2: 0,
-            3: 0,
-            4: 0,
-        };//потопленные корабли человека
         this.direction = {
             axis: 0,
             sign: 0
@@ -49,11 +43,11 @@ class CPU extends Game{
     }
     generate() {
         const getRandom = (num) => {
-            let rand = this.randomCell(this.settings.nums[num]);
-            if (this.settings.nums[num] > 1) {
+            let rand = this.randomCell(num);
+            if (num > 1) {
                 let coord = {};
                 Object.assign(coord, this.shuffle(this.COORDS)[0]);
-                if (this.getNextCell(rand, coord, this.settings.nums[num])) {
+                if (this.getNextCell(rand, coord, num)) {
                     this.resetDirection();
                     return true;
                 } else {
@@ -62,20 +56,19 @@ class CPU extends Game{
                         return true;
                     } else {
                         // todo реализовать рекурсию
-                        console.log('что то пошло не так: ' + num + this.settings.nums[num])
+                        console.log('что то пошло не так: ' + num)
                         return false;
                     }
                 }
             } else {
                 this.addShip(rand.cell);
                 this.addAllships();
-                console.log(num + ': ' +this.settings.nums[num])
                 return true;
             }
         }
         for (let num in this.settings.ships) {
-            for (let i = 0; i < this.settings.ships[num]; i++) {
-                getRandom(num);
+            for (let i = 0; i < this.settings.ships[+num]; i++) {
+                getRandom(+num);
             }
         }
         console.log('generate', this.COORDS)
@@ -170,6 +163,8 @@ class CPU extends Game{
         this.shipKilled[this.shipShoot.size]++;
         super.kill();
         this.genRandomShoot(this.randomShoot);// todo
+        console.log('shipKilled', this.shipKilled);
+        console.log('settings', this.settings);
     }
     resetShip() {
         console.log('resetShip', this.COORDS)
@@ -183,7 +178,7 @@ class CPU extends Game{
     }
     isBigShipsAlive() { // проверяем остались ли большие корабли
         for (let i in this.shipKilled) {
-            if (i > 1 && this.shipKilled[i] < this.settings.ships[this.settings.word[i]]) {
+            if (i > 1 && this.shipKilled[i] < this.settings.ships[i]) {
                 return true;
             }
         }

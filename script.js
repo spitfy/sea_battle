@@ -1,10 +1,10 @@
 "use strict";
     const settings = {
         ships: {
-            one: 4,
-            two: 3,
-            four: 1,
-            three: 2,
+            1: 4,
+            2: 3,
+            4: 1,
+            3: 2,
         },
         size: {
             x:10,
@@ -82,10 +82,10 @@
     const threeCellShip = document.getElementById('three-cell-ship');
     const fourCellShip = document.getElementById('four-cell-ship');
     document.addEventListener('DOMContentLoaded', function() {
-        oneCellShip.innerText = settings.ships.one;
-        twoCellShip.innerText = settings.ships.two;
-        threeCellShip.innerText = settings.ships.three;
-        fourCellShip.innerText = settings.ships.four;
+        oneCellShip.innerText = settings.ships[1];
+        twoCellShip.innerText = settings.ships[2];
+        threeCellShip.innerText = settings.ships[3];
+        fourCellShip.innerText = settings.ships[4];
 
         resetShip();
         gameMan.init();
