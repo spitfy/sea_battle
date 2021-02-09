@@ -191,11 +191,9 @@ class CPU extends Game{
         return _xy;
     }
     addShoot(shoot) {
-        this.delay(() => {
-            shoot.cell.classList.add('shooted');
-            this.shoots.x.push(shoot.x);
-            this.shoots.y.push(shoot.y);
-        }, this.shipShoot.cells);
+        shoot.cell.classList.add('shooted');
+        this.shoots.x.push(shoot.x);
+        this.shoots.y.push(shoot.y);
     }
     hitTheMark(_ship, _coord = {}) {
         this.addShoot(_ship);
@@ -215,7 +213,9 @@ class CPU extends Game{
                 this.kill();
                 return;
             }
-            this.shootShip(this.shipShoot);
+            this.delay(() => {
+                this.shootShip(this.shipShoot);
+            }, this.shipShoot.cells);
             return true;
         }
         return false;
