@@ -67,6 +67,7 @@
         });
         const gen_btn = document.getElementById('gen_btn');
         gen_btn.addEventListener('click', function(e) {
+            if (!gameMan.allowDrow) return;
             gameMan.generate();
             document.querySelector( '#area-cpu .block-screen').style.display = 'none';
         });
