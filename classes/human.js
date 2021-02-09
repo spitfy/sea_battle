@@ -19,13 +19,10 @@ class Human extends Game{
     }
     startDrow(cell) {
         if (this.checkNear(cell)) return;
-        //if (this.usedShips[1] >= this.settings.ships.one) return;
         this.can_drow = true;
         this.addShip(cell);
     }
     drow(cell) {
-        console.log('drow', cell)
-        //if (this.currentElem) return;
         if (this.checkNear(cell)) return;
         if (this.usedShips[this.ship.length] >= this.settings.ships[1]) return;
         if (this.ship.length == 2) {
@@ -45,12 +42,10 @@ class Human extends Game{
         ) {
             // удаляем корабль
             this.shipCnt(false);
-            console.table(this.cells)
             this.ship.forEach((cell, i)=> {
                 this.getCell(cell[0], cell[1]).classList.remove('ship');
             });
             this.ship = [];
-            console.table(this.cells)
         } else {
             this.ship.forEach(cell => {
                 this.cells.x.push(cell[0]);
