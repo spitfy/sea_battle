@@ -40,8 +40,6 @@
         fourCellShip.innerText = settings.ships[4];
 
         gameMan.init();
-        gameMan.generate();
-        document.querySelector( '#area-cpu .block-screen').style.display = 'none';
         gameCPU.init();
         gameCPU.generate();
 
@@ -66,6 +64,11 @@
                     });
                 }
             });
+        });
+        const gen_btn = document.getElementById('gen_btn');
+        gen_btn.addEventListener('click', function(e) {
+            gameMan.generate();
+            document.querySelector( '#area-cpu .block-screen').style.display = 'none';
         });
 
     });

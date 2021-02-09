@@ -18,6 +18,7 @@ class Human extends Game{
         this.currentShip = {size: 0, shooted: 0};
     }
     startDrow(cell) {
+        if (!this.allowDrow) return;
         if (this.checkNear(cell)) return;
         this.can_drow = true;
         this.addShip(cell);

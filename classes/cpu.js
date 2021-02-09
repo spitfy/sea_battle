@@ -269,7 +269,7 @@ class CPU extends Game{
                 this.shoots.y.push(_xy[i].y);
             }, i + 1);
         });
-        this.delay(() => this.genRandomShoot(this.randomShoot), cells.length + 1);
+        this.delay(() => this.genRandomShoot(this.randomShoot), cells.length + 2);
     }
 }
 export {CPU};

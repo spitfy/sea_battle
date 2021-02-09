@@ -6,6 +6,7 @@ class Game {
         this.cells = {x:[],y:[]}
         this.area =  {name: null, el: null};
         this.resetDirection();
+        this.allowDrow = true;
         this.shipShoot = {
             coordX: [],
             coordY: []
@@ -96,6 +97,7 @@ class Game {
                 getRandom(+num);
             }
         }
+        this.allowDrow = false;
     }
     randomCell(size) {
         let rand = {
