@@ -21,7 +21,8 @@
             2: 'two',
             3: 'three',
             4: 'four',
-        }
+        },
+        ms: 200
     };
     import { Human } from './classes/human.js';
     import { CPU } from './classes/cpu.js';
@@ -39,6 +40,8 @@
         fourCellShip.innerText = settings.ships[4];
 
         gameMan.init();
+        gameMan.generate();
+        document.querySelector( '#area-cpu .block-screen').style.display = 'none';
         gameCPU.init();
         gameCPU.generate();
 
@@ -58,7 +61,9 @@
         document.querySelectorAll('.cell.cpu').forEach((el) => {
             el.addEventListener('click', function(e) {
                 if (!gameMan.shoot(e.target, gameCPU.ships)) {
-                    gameCPU.shoot(gameMan.ships)
+                    gameCPU.delay(() => {
+                        gameCPU.shoot(gameMan.ships);
+                    });
                 }
             });
         });
