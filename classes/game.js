@@ -272,7 +272,9 @@ class Game {
         });
         cells.forEach((cell, i) => {
             console.log('i', i)
-            this.delay(() => cell.classList.add('shooted'), ++i);
+            this.delay(() => {
+                this.boom(cell);
+            }, ++i);
         });
     }
     getShipSize(ship, ships) {
@@ -330,6 +332,10 @@ class Game {
     async delay(callback, ms = 1) {
         await this.sleep(this.settings.ms * ms);
         callback && callback();
+    }
+    boom(cell) {
+        cell.classList.add('shooted');
+        this.delay(() => cell.classList.add('boom'), 0.01);
     }
 }
 export { Game };

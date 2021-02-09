@@ -91,16 +91,21 @@
         height: 8px;
         border-radius: 50%;
     }
+    .shooted.boom::after {
+        transform: scale(3.1);
+        transition: 0.1s ease-out;
+    }
     .wounded {
         position: relative;
     }
     .wounded::after {
+        font-size: 1px;
         content: '\00274C';
         position: absolute;
-        top: 48%;
-        left: -1px;
+        top: 29px;
+        left: 2px;
         color: #331f1f;
-        font-size: 31px;
+        font-size: 12px;
         background-color: transparent;
     }
     .wrapper {

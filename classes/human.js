@@ -110,14 +110,15 @@ class Human extends Game{
             this.currentShip.shooted++;
             this.shipShoot.coordX.push(ship.x);
             this.shipShoot.coordY.push(ship.y);
-            cell.classList.add('wounded', 'shooted');
+            cell.classList.add('wounded');
+            this.boom(cell);
             if (this.getShipSize(ship, ships) === this.currentShip.shooted) {
                 this.kill('cpu');
                 this.currentShip.shooted = 0;
             }
             return true;
         }
-        cell.classList.add('shooted');
+        this.boom(cell);
         return false;
     }
 }

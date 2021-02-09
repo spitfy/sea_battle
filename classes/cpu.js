@@ -191,7 +191,7 @@ class CPU extends Game{
         return _xy;
     }
     addShoot(shoot) {
-        shoot.cell.classList.add('shooted');
+        this.boom(shoot.cell);
         this.shoots.x.push(shoot.x);
         this.shoots.y.push(shoot.y);
     }
@@ -264,7 +264,7 @@ class CPU extends Game{
         cells.forEach((cell, i) => {
             console.log(i);
             this.delay(() => {
-                cell.classList.add('shooted');
+                this.boom(cell);
                 this.shoots.x.push(_xy[i].x);
                 this.shoots.y.push(_xy[i].y);
             }, i + 1);
