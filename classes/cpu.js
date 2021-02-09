@@ -71,7 +71,6 @@ class CPU extends Game{
                 getRandom(+num);
             }
         }
-        console.log('generate', this.COORDS)
     }
     randomCell(size) {
         let rand = {
@@ -162,12 +161,9 @@ class CPU extends Game{
     kill() {
         this.shipKilled[this.shipShoot.size]++;
         super.kill();
-        this.genRandomShoot(this.randomShoot);// todo
-        console.log('shipKilled', this.shipKilled);
-        console.log('settings', this.settings);
+        this.genRandomShoot(this.randomShoot);
     }
     resetShip() {
-        console.log('resetShip', this.COORDS)
         super.resetShip();
         this.shipShoot.coords = this.shuffle(this.COORDS);
         this.shipShoot.cells = 0;
@@ -199,7 +195,7 @@ class CPU extends Game{
         return _cells.length;
     }
     shoot(ships) {
-        console.log('shoot', this.COORDS)
+        if (this.isEndGame()) return;
         if (!this.shipsMan.length) {
             this.shipsMan = ships;
         }
