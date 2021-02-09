@@ -18,7 +18,7 @@ class CPU extends Game{
     kill() {
         this.shipKilled[this.shipShoot.size]++;
         super.kill();
-        this.genRandomShoot(this.randomShoot);
+        //this.genRandomShoot(this.randomShoot);
     }
     resetShip() {
         super.resetShip();
@@ -269,6 +269,7 @@ class CPU extends Game{
                 this.shoots.y.push(_xy[i].y);
             }, i + 1);
         });
+        this.delay(() => this.genRandomShoot(this.randomShoot), cells.length + 1);
     }
 }
 export {CPU};
