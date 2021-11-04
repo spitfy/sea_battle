@@ -96,7 +96,6 @@
         position: relative;
     }
     .wounded::after {
-        font-size: 1px;
         content: '\00274C';
         position: absolute;
         top: 27px;
@@ -153,6 +152,39 @@
         background-color: #000000c9;
         display: flex;
         line-height: 1.2;
+    }
+    @media (max-width: 720px) {
+        .cell {
+            width: 20px;
+            height: 20px;
+        }
+        .unit {
+            display: none;
+        }
+        .ships {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 9%;
+        }
+        .wrapper {
+            padding-top: 36px;
+        }
+        .wounded::after {
+            top: 13px;
+            left: 1px;
+            font-size: 10px;
+        }
+        .shooted.boom::after {
+            transform: scale(1.8);
+        }
+    }
+    @media (max-width: 450px) {
+        .wrapper {
+            display: flex;
+            justify-content: space-evenly;
+            flex-direction: column;
+        }
     }
 </style>
 </body>
