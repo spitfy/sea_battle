@@ -64,9 +64,6 @@ class Game {
         }
     }
 
-
-
-
     generate() {
         const getRandom = (num) => {
             let rand = this.randomCell(num);
